@@ -1,12 +1,10 @@
-import { getDefaultConfig } from "@rainbow-me/rainbowkit";
+import { createConfig, injected } from "wagmi";
 import { http } from "viem";
 import { hardhat, sepolia } from "viem/chains";
-import { config as appConfig } from "@/config";
 
-export const wagmiConfig = getDefaultConfig({
-  appName: "NFT Market",
-  projectId: appConfig.walletConnectProjectId,
+export const wagmiConfig = createConfig({
   chains: [hardhat, sepolia],
+  connectors: [injected()],
   transports: {
     [hardhat.id]: http(),
     [sepolia.id]: http(),

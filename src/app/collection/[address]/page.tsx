@@ -70,7 +70,7 @@ export default function CollectionPage() {
         </div>
       )}
 
-      {ordersData && ordersData.orders.length === 0 && (
+      {ordersData && !ordersData.orders?.length && (
         <div className="py-20 text-center">
           <p className="font-serif text-lg text-[#c4bfb8] italic">
             No active orders for this collection.
@@ -78,7 +78,7 @@ export default function CollectionPage() {
         </div>
       )}
 
-      {ordersData && ordersData.orders.length > 0 && (
+      {ordersData && ordersData.orders && ordersData.orders.length > 0 && (
         <div className="space-y-3">
           {ordersData.orders.map((order, i) => (
             <div

@@ -2,10 +2,10 @@
 
 import { useState, Suspense } from "react";
 import { useSearchParams } from "next/navigation";
-import { useAccount, useSignTypedData } from "wagmi";
+import { useAccount, useSignTypedData, useSignMessage } from "wagmi";
 import { parseEther } from "viem";
 import { toast } from "sonner";
-import { api } from "@/lib/api";
+import { api, getAuthToken } from "@/lib/api";
 import { ORDER_TYPES, getEIP712Domain } from "@/lib/eip712";
 import { randomSalt } from "@/lib/utils";
 import ModeSelector from "@/components/create/ModeSelector";
@@ -25,6 +25,22 @@ function CreatePageInner() {
   );
   const [isPending, setIsPending] = useState(false);
   const { signTypedDataAsync } = useSignTypedData();
+  const { signMessageAsync } = useSignMessage();
+
+  // Ensure user is authenticated before submitting an order.
+  async function ensureAuth(): Promise<void> {
+    // Already have a token, skip login
+    if (getAuthToken()) return;
+    if (!address) throw new Error("Connect your wallet first");
+
+    try {
+      await api.login(address, signMessageAsync);
+    } catch (e) {
+      throw new Error(
+        e instanceof Error ? `Login failed: ${e.message}` : "Login failed"
+      );
+    }
+  }
 
   async function handleSubmit(values: OrderFormValues) {
     if (!address) {
@@ -38,6 +54,9 @@ function CreatePageInner() {
 
     setIsPending(true);
     try {
+      // Step 1: Authenticate (Challenge → Sign → Login → JWT)
+      await ensureAuth();
+
       const salt = randomSalt();
       const priceWei = values.price ? parseEther(values.price) : BigInt(0);
       const startTime = values.startTime
@@ -52,6 +71,7 @@ function CreatePageInner() {
       const taker =
         values.taker || "0x0000000000000000000000000000000000000000";
 
+      // Step 2: EIP-712 sign the order
       const signature = await signTypedDataAsync({
         domain: getEIP712Domain(),
         types: ORDER_TYPES,
@@ -76,6 +96,7 @@ function CreatePageInner() {
         },
       });
 
+      // Step 3: Submit to backend (Authorization header auto-attached)
       await api.submitOrder({
         maker: address,
         taker,

@@ -85,7 +85,7 @@ export default function OrderTab() {
     );
   }
 
-  if (!data?.orders.length) {
+  if (!data?.orders?.length) {
     return (
       <p className="py-16 text-center font-serif text-sm text-[#c4bfb8] italic">
         No active orders.

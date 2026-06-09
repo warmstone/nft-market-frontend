@@ -181,7 +181,7 @@ export default function OrderPanel({ collection, tokenId }: Props) {
         <h3 className="mb-4 font-serif text-lg font-semibold text-[#1a1a1a]">
           Listings
         </h3>
-        {sellOrders?.orders.length === 0 && (
+        {!sellOrders?.orders?.length && (
           <p className="font-serif text-sm text-[#c4bfb8] italic">
             No listings for this work.
           </p>
@@ -204,7 +204,7 @@ export default function OrderPanel({ collection, tokenId }: Props) {
         <h3 className="mb-4 font-serif text-lg font-semibold text-[#1a1a1a]">
           Offers
         </h3>
-        {buyOrders?.orders.length === 0 && (
+        {!buyOrders?.orders?.length && (
           <p className="font-serif text-sm text-[#c4bfb8] italic">
             No offers for this work.
           </p>

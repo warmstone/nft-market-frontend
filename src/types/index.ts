@@ -56,6 +56,45 @@ export interface CollectionDetail extends Collection {
   listed: number;
 }
 
+// --- API response wrappers (match backend actual format) ---
+
+export interface CollectionsResponse {
+  collections: Collection[] | null;
+  total: number;
+  page: number;
+  pageSize: number;
+}
+
+export interface CollectionDetailResponse {
+  collection: Collection;
+  floorPrice: string;
+  bestBid: string;
+  listed: number;
+}
+
+export interface CollectionStatsResponse {
+  collection: string;
+  floorPrice: string;
+  bestBid: string;
+  listed: number;
+}
+
+export interface OrdersResponse {
+  orders: Order[] | null;
+  total: number;
+  page: number;
+  pageSize: number;
+}
+
+export interface OrderSubmitResponse {
+  orderHash: string;
+  status: string;
+}
+
+export interface UserOrdersResponse {
+  orders: Order[] | null;
+}
+
 export interface GlobalStats {
   totalOrders: number;
   totalCollections: number;
