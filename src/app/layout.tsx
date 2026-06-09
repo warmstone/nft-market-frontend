@@ -5,8 +5,8 @@ import { Toaster } from "sonner";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "NFT Market",
-  description: "Decentralized NFT marketplace with signed orders",
+  title: "Gallery — NFT Market",
+  description: "A curated marketplace for digital art and collectibles",
 };
 
 export default function RootLayout({
@@ -15,16 +15,21 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en" className="dark">
+    <html lang="en">
       <body>
         <Providers>
           <Header />
-          <main className="mx-auto max-w-7xl px-4 py-6">{children}</main>
+          <main className="mx-auto max-w-7xl px-6 py-10">{children}</main>
           <Toaster
             position="bottom-right"
-            theme="dark"
             toastOptions={{
-              style: { background: "#1f2937", color: "#f3f4f6", border: "1px solid #374151" },
+              style: {
+                background: "#fefdfb",
+                color: "#1a1a1a",
+                border: "1px solid #e8e2d8",
+                fontFamily: "Georgia, serif",
+                fontSize: "14px",
+              },
             }}
           />
         </Providers>

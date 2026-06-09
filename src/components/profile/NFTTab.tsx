@@ -6,14 +6,20 @@ export default function NFTTab() {
   const { address } = useAccount();
 
   if (!address) {
-    return <p className="text-gray-500">Connect your wallet to see NFTs.</p>;
+    return (
+      <p className="py-16 text-center font-serif text-sm text-[#c4bfb8] italic">
+        Connect your wallet to view your collection.
+      </p>
+    );
   }
 
   return (
-    <div className="py-12 text-center text-gray-500">
-      <p>NFT browsing coming soon.</p>
-      <p className="text-sm mt-2">
-        Use the search bar or collection pages to find your NFTs.
+    <div className="py-20 text-center">
+      <p className="font-serif text-base text-[#c4bfb8] italic">
+        Collection browsing coming soon.
+      </p>
+      <p className="mt-2 font-serif text-sm text-[#c4bfb8]">
+        Use the search bar or browse collections to discover works.
       </p>
     </div>
   );

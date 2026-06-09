@@ -3,11 +3,11 @@
 import { useForm } from "react-hook-form";
 
 export interface OrderFormValues {
-  price: string;       // ETH amount
-  startPrice: string;  // Dutch auction start price (same as price for fixed)
-  startTime: string;   // ISO datetime-local
-  endTime: string;     // ISO datetime-local (empty = never expires)
-  taker: string;       // address(0) = public
+  price: string;
+  startPrice: string;
+  startTime: string;
+  endTime: string;
+  taker: string;
   paymentToken: string;
 }
 
@@ -16,6 +16,12 @@ interface Props {
   onSubmit: (values: OrderFormValues) => void;
   isPending: boolean;
 }
+
+const inputClass =
+  "w-full rounded-md border border-[#e8e2d8] bg-white px-3 py-2.5 font-mono text-sm text-[#1a1a1a] placeholder-[#c4bfb8] outline-none transition focus:border-[#b8860b]";
+const labelClass =
+  "mb-1.5 block font-mono text-xs uppercase tracking-wider text-[#8c8580]";
+const errorClass = "mt-1 font-serif text-xs text-[#c53030]";
 
 export default function OrderForm({ mode, onSubmit, isPending }: Props) {
   const {
@@ -34,11 +40,13 @@ export default function OrderForm({ mode, onSubmit, isPending }: Props) {
   });
 
   return (
-    <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-      <h3 className="text-sm font-medium text-gray-300">Order Details</h3>
+    <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
+      <h3 className="font-serif text-base font-medium text-[#1a1a1a]">
+        Order Details
+      </h3>
 
       <div>
-        <label className="block text-xs text-gray-500 mb-1">
+        <label className={labelClass}>
           Price ({mode === "sell" ? "ETH" : "WETH"})
         </label>
         <input
@@ -46,47 +54,38 @@ export default function OrderForm({ mode, onSubmit, isPending }: Props) {
           placeholder="0.1"
           {...register("price", {
             required: "Price is required",
-            pattern: {
-              value: /^\d*\.?\d*$/,
-              message: "Invalid number",
-            },
+            pattern: { value: /^\d*\.?\d*$/, message: "Invalid number" },
           })}
-          className="w-full rounded-lg bg-gray-800 px-3 py-2 text-sm text-gray-200 ring-1 ring-gray-700 placeholder-gray-500"
+          className={inputClass}
         />
         {errors.price && (
-          <p className="mt-1 text-xs text-red-400">{errors.price.message}</p>
+          <p className={errorClass}>{errors.price.message}</p>
         )}
       </div>
 
       <div>
-        <label className="block text-xs text-gray-500 mb-1">
-          Start Time
-        </label>
+        <label className={labelClass}>Start Time</label>
         <input
           type="datetime-local"
           {...register("startTime", { required: "Start time is required" })}
-          className="w-full rounded-lg bg-gray-800 px-3 py-2 text-sm text-gray-200 ring-1 ring-gray-700"
+          className={inputClass}
         />
         {errors.startTime && (
-          <p className="mt-1 text-xs text-red-400">{errors.startTime.message}</p>
+          <p className={errorClass}>{errors.startTime.message}</p>
         )}
       </div>
 
       <div>
-        <label className="block text-xs text-gray-500 mb-1">
-          End Time (empty = never expires)
-        </label>
+        <label className={labelClass}>End Time (empty = never)</label>
         <input
           type="datetime-local"
           {...register("endTime")}
-          className="w-full rounded-lg bg-gray-800 px-3 py-2 text-sm text-gray-200 ring-1 ring-gray-700"
+          className={inputClass}
         />
       </div>
 
       <div>
-        <label className="block text-xs text-gray-500 mb-1">
-          Taker (empty = public)
-        </label>
+        <label className={labelClass}>Taker (empty = public)</label>
         <input
           type="text"
           placeholder="0x... or empty"
@@ -94,12 +93,12 @@ export default function OrderForm({ mode, onSubmit, isPending }: Props) {
             validate: (v) =>
               !v || v.startsWith("0x") || "Must be a hex address",
           })}
-          className="w-full rounded-lg bg-gray-800 px-3 py-2 text-sm text-gray-200 ring-1 ring-gray-700 placeholder-gray-500 font-mono"
+          className={inputClass}
         />
       </div>
 
       <div>
-        <label className="block text-xs text-gray-500 mb-1">
+        <label className={labelClass}>
           Payment Token (empty = {mode === "sell" ? "ETH" : "WETH"})
         </label>
         <input
@@ -109,17 +108,17 @@ export default function OrderForm({ mode, onSubmit, isPending }: Props) {
             validate: (v) =>
               !v || v.startsWith("0x") || "Must be a hex address",
           })}
-          className="w-full rounded-lg bg-gray-800 px-3 py-2 text-sm text-gray-200 ring-1 ring-gray-700 placeholder-gray-500 font-mono"
+          className={inputClass}
         />
       </div>
 
       <button
         type="submit"
         disabled={isPending}
-        className="w-full rounded-lg bg-brand-600 px-4 py-3 text-sm font-semibold text-white hover:bg-brand-700 disabled:opacity-50"
+        className="w-full rounded-md bg-[#1a1a1a] px-4 py-3 font-serif text-base font-medium text-[#faf7f2] transition hover:bg-[#3d3d3d] disabled:opacity-40"
       >
         {isPending
-          ? "Signing..."
+          ? "Signing…"
           : mode === "sell"
           ? "Sign & List"
           : "Sign & Offer"}

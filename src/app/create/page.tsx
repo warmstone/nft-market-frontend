@@ -20,7 +20,9 @@ function CreatePageInner() {
   const [collection, setCollection] = useState(
     searchParams.get("collection") || ""
   );
-  const [tokenId, setTokenId] = useState(searchParams.get("tokenId") || "");
+  const [tokenId, setTokenId] = useState(
+    searchParams.get("tokenId") || ""
+  );
   const [isPending, setIsPending] = useState(false);
   const { signTypedDataAsync } = useSignTypedData();
 
@@ -45,7 +47,8 @@ function CreatePageInner() {
         ? Math.floor(new Date(values.endTime).getTime() / 1000)
         : 0;
       const paymentToken =
-        values.paymentToken || "0x0000000000000000000000000000000000000000";
+        values.paymentToken ||
+        "0x0000000000000000000000000000000000000000";
       const taker =
         values.taker || "0x0000000000000000000000000000000000000000";
 
@@ -57,8 +60,8 @@ function CreatePageInner() {
           maker: address,
           taker: taker as `0x${string}`,
           side: mode === "sell" ? 0 : 1,
-          kind: 0, // FixedPrice for v1
-          assetType: 0, // ERC721 for v1
+          kind: 0,
+          assetType: 0,
           collection: collection as `0x${string}`,
           tokenId: BigInt(tokenId),
           amount: BigInt(1),
@@ -93,12 +96,11 @@ function CreatePageInner() {
       });
 
       toast.success(
-        mode === "sell" ? "Order listed!" : "Offer submitted!"
+        mode === "sell" ? "Work listed" : "Offer submitted"
       );
     } catch (e) {
       const msg =
         e instanceof Error ? e.message : "Something went wrong";
-      // Don't toast for user-rejected signatures
       if (!msg.includes("rejected") && !msg.includes("denied")) {
         toast.error(msg);
       }
@@ -109,8 +111,8 @@ function CreatePageInner() {
 
   return (
     <div className="mx-auto max-w-lg">
-      <h1 className="mb-6 text-2xl font-bold text-white">
-        {mode === "sell" ? "Create Listing" : "Make Offer"}
+      <h1 className="mb-8 font-serif text-3xl font-semibold italic text-[#1a1a1a]">
+        {mode === "sell" ? "List a Work" : "Make an Offer"}
       </h1>
 
       <ModeSelector />
@@ -121,8 +123,12 @@ function CreatePageInner() {
         onCollectionChange={setCollection}
         onTokenIdChange={setTokenId}
       />
-      <div className="mt-6">
-        <OrderForm mode={mode} onSubmit={handleSubmit} isPending={isPending} />
+      <div className="mt-8">
+        <OrderForm
+          mode={mode}
+          onSubmit={handleSubmit}
+          isPending={isPending}
+        />
       </div>
     </div>
   );
@@ -132,9 +138,9 @@ export default function CreatePage() {
   return (
     <Suspense
       fallback={
-        <div className="mx-auto max-w-lg animate-pulse">
-          <div className="h-8 w-48 bg-gray-800 rounded mb-6" />
-          <div className="h-40 bg-gray-900 rounded-xl" />
+        <div className="mx-auto max-w-lg animate-pulse space-y-6">
+          <div className="h-9 w-48 rounded bg-[#e8e2d8]" />
+          <div className="h-48 rounded-lg border border-[#e8e2d8] bg-white" />
         </div>
       }
     >

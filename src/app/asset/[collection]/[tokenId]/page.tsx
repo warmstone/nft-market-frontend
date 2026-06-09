@@ -2,6 +2,7 @@
 
 import { useParams } from "next/navigation";
 import { useWebSocket } from "@/hooks/useWebSocket";
+import { shortenAddress } from "@/lib/utils";
 import NFTViewer from "@/components/asset/NFTViewer";
 import OrderPanel from "@/components/asset/OrderPanel";
 
@@ -14,19 +15,21 @@ export default function AssetPage() {
 
   return (
     <div>
-      <div className="grid gap-8 lg:grid-cols-2">
+      <div className="grid gap-12 lg:grid-cols-2">
         <NFTViewer
-          name={`${collection.slice(0, 8)}... #${tokenId}`}
+          name={`Work #${tokenId}`}
           imageUrl=""
         />
         <div>
-          <h1 className="mb-4 text-2xl font-bold text-white">
-            NFT #{tokenId}
+          <h1 className="font-serif text-3xl font-semibold text-[#1a1a1a]">
+            #{tokenId}
           </h1>
-          <p className="mb-6 text-sm text-gray-400 break-all">
-            Collection: {collection}
+          <p className="mt-3 font-mono text-sm text-[#8c8580] break-all">
+            {shortenAddress(collection)}
           </p>
-          <OrderPanel collection={collection} tokenId={tokenId} />
+          <div className="mt-8">
+            <OrderPanel collection={collection} tokenId={tokenId} />
+          </div>
         </div>
       </div>
     </div>

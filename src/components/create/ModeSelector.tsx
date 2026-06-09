@@ -8,18 +8,18 @@ export default function ModeSelector() {
   const current = searchParams.get("mode") || "sell";
 
   return (
-    <div className="mb-6 flex rounded-lg bg-gray-900 p-1 ring-1 ring-gray-800">
+    <div className="mb-8 flex rounded-md border border-[#e8e2d8] bg-[#f5efe4] p-1">
       {(["sell", "buy"] as const).map((mode) => (
         <button
           key={mode}
           onClick={() => router.push(`/create?mode=${mode}`)}
-          className={`flex-1 rounded-md px-4 py-2 text-sm font-medium ${
+          className={`flex-1 rounded-sm px-4 py-2.5 font-serif text-sm transition ${
             current === mode
-              ? "bg-brand-600 text-white"
-              : "text-gray-400 hover:text-gray-200"
+              ? "bg-white text-[#1a1a1a] shadow-sm"
+              : "text-[#8c8580] hover:text-[#1a1a1a]"
           }`}
         >
-          {mode === "sell" ? "Sell NFT" : "Make Offer"}
+          {mode === "sell" ? "Sell a Work" : "Make an Offer"}
         </button>
       ))}
     </div>

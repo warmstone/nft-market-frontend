@@ -1,17 +1,55 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { useAccount, useWriteContract, useWaitForTransactionReceipt } from "wagmi";
+import {
+  useAccount,
+  useWriteContract,
+  useWaitForTransactionReceipt,
+} from "wagmi";
 import { toast } from "sonner";
 import { useOrders } from "@/hooks/useOrders";
 import { exchangeABI } from "@/lib/contract";
 import { config } from "@/config";
-import { formatETH, shortenAddress } from "@/lib/utils";
+import { shortenAddress } from "@/lib/utils";
 import type { Order } from "@/types";
 
 interface Props {
   collection: string;
   tokenId: string;
+}
+
+function OrderRow({
+  order,
+  label,
+  actionLabel,
+  onAction,
+  isPending,
+}: {
+  order: Order;
+  label: string;
+  actionLabel: string;
+  onAction: () => void;
+  isPending: boolean;
+}) {
+  return (
+    <div className="flex items-center justify-between rounded-md border border-[#e8e2d8] bg-white px-5 py-4">
+      <div>
+        <p className="font-mono text-base font-medium text-[#1a1a1a]">
+          {order.price} {label}
+        </p>
+        <p className="mt-0.5 font-serif text-xs text-[#8c8580]">
+          {shortenAddress(order.maker)}
+        </p>
+      </div>
+      <button
+        onClick={onAction}
+        disabled={isPending}
+        className="rounded-md bg-[#1a1a1a] px-5 py-2 font-serif text-sm text-[#faf7f2] transition hover:bg-[#3d3d3d] disabled:opacity-40"
+      >
+        {isPending ? "Pending…" : actionLabel}
+      </button>
+    </div>
+  );
 }
 
 export default function OrderPanel({ collection, tokenId }: Props) {
@@ -34,13 +72,12 @@ export default function OrderPanel({ collection, tokenId }: Props) {
   });
 
   const { writeContractAsync } = useWriteContract();
-  const { isLoading: isConfirming, isSuccess, isError } = useWaitForTransactionReceipt({
-    hash: txHash,
-  });
+  const { isLoading: isConfirming, isSuccess, isError } =
+    useWaitForTransactionReceipt({ hash: txHash });
 
   useEffect(() => {
     if (isSuccess) {
-      toast.success("Transaction confirmed!");
+      toast.success("Transaction confirmed");
       setTxHash(undefined);
     }
   }, [isSuccess]);
@@ -86,7 +123,9 @@ export default function OrderPanel({ collection, tokenId }: Props) {
         value: BigInt(order.price),
       });
       setTxHash(hash);
-      toast.loading("Transaction submitted...");
+      toast("Transaction submitted…", {
+        style: { background: "#fefdfb", color: "#1a1a1a", border: "1px solid #b8860b" },
+      });
     } catch (e) {
       toast.error(e instanceof Error ? e.message : "Transaction rejected");
     }
@@ -126,7 +165,9 @@ export default function OrderPanel({ collection, tokenId }: Props) {
         ],
       });
       setTxHash(hash);
-      toast.loading("Transaction submitted...");
+      toast("Transaction submitted…", {
+        style: { background: "#fefdfb", color: "#1a1a1a", border: "1px solid #b8860b" },
+      });
     } catch (e) {
       toast.error(e instanceof Error ? e.message : "Transaction rejected");
     }
@@ -135,73 +176,58 @@ export default function OrderPanel({ collection, tokenId }: Props) {
   const isPending = isConfirming || !!txHash;
 
   return (
-    <div className="space-y-6">
-      {/* Sell Orders (Listings) */}
+    <div className="space-y-8">
       <div>
-        <h3 className="mb-3 text-lg font-semibold text-white">Listings</h3>
+        <h3 className="mb-4 font-serif text-lg font-semibold text-[#1a1a1a]">
+          Listings
+        </h3>
         {sellOrders?.orders.length === 0 && (
-          <p className="text-sm text-gray-500">No listings for this NFT.</p>
+          <p className="font-serif text-sm text-[#c4bfb8] italic">
+            No listings for this work.
+          </p>
         )}
-        {sellOrders?.orders.map((order) => (
-          <div
-            key={order.orderHash}
-            className="flex items-center justify-between rounded-lg bg-gray-900 p-4 ring-1 ring-gray-800"
-          >
-            <div>
-              <p className="text-lg font-semibold text-white">
-                {formatETH(order.price)} ETH
-              </p>
-              <p className="text-xs text-gray-500">
-                by {shortenAddress(order.maker)}
-              </p>
-            </div>
-            <button
-              onClick={() => handleBuy(order)}
-              disabled={isPending}
-              className="rounded-lg bg-brand-600 px-4 py-2 text-sm font-medium text-white hover:bg-brand-700 disabled:opacity-50"
-            >
-              {isPending ? "Pending..." : "Buy Now"}
-            </button>
-          </div>
-        ))}
+        <div className="space-y-3">
+          {sellOrders?.orders.map((order) => (
+            <OrderRow
+              key={order.orderHash}
+              order={order}
+              label="ETH"
+              actionLabel="Buy Now"
+              onAction={() => handleBuy(order)}
+              isPending={isPending}
+            />
+          ))}
+        </div>
       </div>
 
-      {/* Buy Orders (Offers) */}
       <div>
-        <h3 className="mb-3 text-lg font-semibold text-white">Offers</h3>
+        <h3 className="mb-4 font-serif text-lg font-semibold text-[#1a1a1a]">
+          Offers
+        </h3>
         {buyOrders?.orders.length === 0 && (
-          <p className="text-sm text-gray-500">No offers for this NFT.</p>
+          <p className="font-serif text-sm text-[#c4bfb8] italic">
+            No offers for this work.
+          </p>
         )}
-        {buyOrders?.orders.map((order) => (
-          <div
-            key={order.orderHash}
-            className="flex items-center justify-between rounded-lg bg-gray-900 p-4 ring-1 ring-gray-800"
-          >
-            <div>
-              <p className="text-lg font-semibold text-white">
-                {formatETH(order.price)} WETH
-              </p>
-              <p className="text-xs text-gray-500">
-                by {shortenAddress(order.maker)}
-              </p>
-            </div>
-            <button
-              onClick={() => handleAcceptOffer(order)}
-              disabled={isPending}
-              className="rounded-lg bg-brand-600 px-4 py-2 text-sm font-medium text-white hover:bg-brand-700 disabled:opacity-50"
-            >
-              {isPending ? "Pending..." : "Accept Offer"}
-            </button>
-          </div>
-        ))}
+        <div className="space-y-3">
+          {buyOrders?.orders.map((order) => (
+            <OrderRow
+              key={order.orderHash}
+              order={order}
+              label="WETH"
+              actionLabel="Accept Offer"
+              onAction={() => handleAcceptOffer(order)}
+              isPending={isPending}
+            />
+          ))}
+        </div>
       </div>
 
-      {/* Create link */}
       <a
         href={`/create?collection=${collection}&tokenId=${tokenId}`}
-        className="block text-center text-sm text-brand-500 hover:underline"
+        className="block text-center font-serif text-sm text-[#b8860b] transition hover:text-[#9e7208]"
       >
-        + Create order for this NFT
+        + Create order for this work
       </a>
     </div>
   );

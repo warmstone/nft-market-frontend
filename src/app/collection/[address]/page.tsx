@@ -18,7 +18,8 @@ export default function CollectionPage() {
   const [minPrice, setMinPrice] = useState("");
   const [maxPrice, setMaxPrice] = useState("");
 
-  const { data: collection, isLoading: colLoading } = useCollection(address);
+  const { data: collection, isLoading: colLoading } =
+    useCollection(address);
   const { data: ordersData, isLoading: ordersLoading } = useOrders({
     collection: address,
     side: side ? (Number(side) as 0 | 1) : undefined,
@@ -34,10 +35,14 @@ export default function CollectionPage() {
   return (
     <div>
       {colLoading && (
-        <div className="mb-8 animate-pulse">
-          <div className="h-24 w-24 rounded-full bg-gray-800 mb-4" />
-          <div className="h-8 w-48 bg-gray-800 rounded mb-2" />
-          <div className="h-4 w-24 bg-gray-800 rounded" />
+        <div className="mb-12 animate-pulse space-y-4">
+          <div className="h-10 w-64 rounded bg-[#e8e2d8]" />
+          <div className="h-5 w-48 rounded bg-[#e8e2d8]" />
+          <div className="mt-6 flex gap-12">
+            <div className="h-12 w-20 rounded bg-[#e8e2d8]" />
+            <div className="h-12 w-20 rounded bg-[#e8e2d8]" />
+            <div className="h-12 w-20 rounded bg-[#e8e2d8]" />
+          </div>
         </div>
       )}
 
@@ -57,21 +62,32 @@ export default function CollectionPage() {
       {ordersLoading && (
         <div className="space-y-3">
           {Array.from({ length: 5 }).map((_, i) => (
-            <div key={i} className="h-16 animate-pulse rounded-lg bg-gray-900" />
+            <div
+              key={i}
+              className="h-16 animate-pulse rounded-lg border border-[#e8e2d8] bg-white"
+            />
           ))}
         </div>
       )}
 
       {ordersData && ordersData.orders.length === 0 && (
-        <div className="py-16 text-center text-gray-500">
-          No active orders for this collection.
+        <div className="py-20 text-center">
+          <p className="font-serif text-lg text-[#c4bfb8] italic">
+            No active orders for this collection.
+          </p>
         </div>
       )}
 
       {ordersData && ordersData.orders.length > 0 && (
         <div className="space-y-3">
-          {ordersData.orders.map((order) => (
-            <OrderCard key={order.orderHash} order={order} />
+          {ordersData.orders.map((order, i) => (
+            <div
+              key={order.orderHash}
+              className="animate-fade-up"
+              style={{ animationDelay: `${i * 50}ms` }}
+            >
+              <OrderCard order={order} />
+            </div>
           ))}
         </div>
       )}

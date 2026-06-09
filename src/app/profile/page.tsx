@@ -7,7 +7,7 @@ import OrderTab from "@/components/profile/OrderTab";
 import NFTTab from "@/components/profile/NFTTab";
 import HistoryTab from "@/components/profile/HistoryTab";
 
-const TABS = ["Active Orders", "My NFTs", "History"] as const;
+const TABS = ["Active Orders", "Collection", "History"] as const;
 
 export default function ProfilePage() {
   const { isConnected } = useAccount();
@@ -15,27 +15,33 @@ export default function ProfilePage() {
 
   if (!isConnected) {
     return (
-      <div className="py-20 text-center">
-        <h1 className="text-2xl font-bold text-white mb-4">Profile</h1>
-        <p className="text-gray-500">Connect your wallet to view your profile.</p>
+      <div className="py-32 text-center">
+        <h1 className="font-serif text-4xl font-semibold italic text-[#1a1a1a]">
+          Profile
+        </h1>
+        <p className="mt-4 font-serif text-base text-[#c4bfb8]">
+          Connect your wallet to view your profile.
+        </p>
       </div>
     );
   }
 
   return (
     <div>
-      <h1 className="mb-6 text-2xl font-bold text-white">Profile</h1>
+      <h1 className="mb-8 font-serif text-4xl font-semibold italic text-[#1a1a1a]">
+        Profile
+      </h1>
       <WalletSummary />
 
-      <div className="mb-6 flex gap-1 rounded-lg bg-gray-900 p-1 ring-1 ring-gray-800">
+      <div className="mb-8 flex gap-1 rounded-md border border-[#e8e2d8] bg-[#f5efe4] p-1">
         {TABS.map((t) => (
           <button
             key={t}
             onClick={() => setTab(t)}
-            className={`flex-1 rounded-md px-4 py-2 text-sm font-medium ${
+            className={`flex-1 rounded-sm px-4 py-2.5 font-serif text-sm transition ${
               tab === t
-                ? "bg-gray-800 text-white"
-                : "text-gray-400 hover:text-gray-200"
+                ? "bg-white text-[#1a1a1a] shadow-sm"
+                : "text-[#8c8580] hover:text-[#1a1a1a]"
             }`}
           >
             {t}
@@ -44,7 +50,7 @@ export default function ProfilePage() {
       </div>
 
       {tab === "Active Orders" && <OrderTab />}
-      {tab === "My NFTs" && <NFTTab />}
+      {tab === "Collection" && <NFTTab />}
       {tab === "History" && <HistoryTab />}
     </div>
   );

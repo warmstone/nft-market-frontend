@@ -8,35 +8,48 @@ export default function HomePage() {
 
   return (
     <div>
-      <h1 className="text-2xl font-bold text-white mb-6">Explore Collections</h1>
+      <h1 className="mb-10 font-serif text-4xl font-semibold italic text-[#1a1a1a]">
+        Explore
+      </h1>
 
       {isLoading && (
-        <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5">
+        <div className="grid grid-cols-2 gap-5 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5">
           {Array.from({ length: 10 }).map((_, i) => (
-            <div key={i} className="animate-pulse rounded-xl bg-gray-900 aspect-[3/4]" />
+            <div
+              key={i}
+              className="animate-pulse rounded-lg border border-[#e8e2d8] bg-white aspect-[3/4]"
+            />
           ))}
         </div>
       )}
 
       {error && (
-        <div className="rounded-lg border border-red-800 bg-red-900/20 p-4 text-red-400">
-          Failed to load collections. Please try again.
+        <div className="rounded-md border border-red-200 bg-red-50 p-6 font-serif text-sm text-red-600">
+          Unable to load collections. Please try again.
         </div>
       )}
 
       {collections && collections.length === 0 && (
-        <div className="py-20 text-center text-gray-500">
-          <p className="text-lg">No collections yet</p>
-          <p className="text-sm mt-2">
+        <div className="py-32 text-center">
+          <p className="font-serif text-xl text-[#c4bfb8] italic">
+            No collections yet
+          </p>
+          <p className="mt-3 font-serif text-sm text-[#c4bfb8]">
             Collections will appear here once registered on-chain.
           </p>
         </div>
       )}
 
       {collections && collections.length > 0 && (
-        <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5">
-          {collections.map((c) => (
-            <CollectionCard key={c.address} collection={c} />
+        <div className="grid grid-cols-2 gap-5 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5">
+          {collections.map((c, i) => (
+            <div
+              key={c.address}
+              className="animate-fade-up"
+              style={{ animationDelay: `${i * 60}ms` }}
+            >
+              <CollectionCard collection={c} />
+            </div>
           ))}
         </div>
       )}

@@ -1,7 +1,7 @@
 "use client";
 
 import { useAccount, useBalance } from "wagmi";
-import { formatETH, shortenAddress } from "@/lib/utils";
+import { shortenAddress } from "@/lib/utils";
 
 export default function WalletSummary() {
   const { address } = useAccount();
@@ -10,11 +10,17 @@ export default function WalletSummary() {
   if (!address) return null;
 
   return (
-    <div className="mb-8 rounded-xl bg-gray-900 p-6 ring-1 ring-gray-800">
-      <h2 className="text-sm text-gray-500 mb-1">Connected Wallet</h2>
-      <p className="text-lg font-mono text-white">{shortenAddress(address)}</p>
-      <p className="mt-2 text-2xl font-bold text-white">
-        {balance ? `${formatETH(balance.value.toString())} ${balance.symbol}` : "—"}
+    <div className="mb-10 rounded-lg border border-[#e8e2d8] bg-white p-8">
+      <h2 className="font-mono text-xs uppercase tracking-wider text-[#8c8580]">
+        Connected Wallet
+      </h2>
+      <p className="mt-2 font-mono text-sm text-[#1a1a1a]">
+        {shortenAddress(address)}
+      </p>
+      <p className="mt-3 font-serif text-3xl font-semibold text-[#1a1a1a]">
+        {balance
+          ? `${Number(balance.formatted).toFixed(4)} ${balance.symbol}`
+          : "—"}
       </p>
     </div>
   );

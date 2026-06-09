@@ -1,4 +1,4 @@
-import { formatETH, ipfsURL } from "@/lib/utils";
+import { shortenAddress } from "@/lib/utils";
 import type { CollectionDetail } from "@/types";
 
 interface Props {
@@ -7,35 +7,39 @@ interface Props {
 
 export default function CollectionHero({ collection }: Props) {
   return (
-    <div className="mb-8">
-      {collection.imageUrl && (
-        <img
-          src={ipfsURL(collection.imageUrl)}
-          alt={collection.name}
-          className="mb-4 h-24 w-24 rounded-full ring-2 ring-gray-700"
-          onError={(e) => {
-            (e.target as HTMLImageElement).style.display = "none";
-          }}
-        />
-      )}
-      <h1 className="text-3xl font-bold text-white">{collection.name}</h1>
-      <p className="text-gray-400">{collection.symbol}</p>
-      <div className="mt-4 flex gap-6 text-sm">
+    <div className="mb-12 border-b border-[#e8e2d8] pb-10">
+      <h1 className="font-serif text-4xl font-semibold italic text-[#1a1a1a]">
+        {collection.name}
+      </h1>
+      <p className="mt-2 font-mono text-sm text-[#8c8580]">
+        {shortenAddress(collection.address)}
+      </p>
+      <div className="mt-8 flex gap-12 font-mono text-sm">
         <div>
-          <span className="text-gray-500">Floor</span>
-          <p className="text-white font-medium">
-            {collection.floorPrice ? `${formatETH(collection.floorPrice)} ETH` : "—"}
+          <span className="text-[#8c8580] uppercase tracking-wider text-xs">
+            Floor Price
+          </span>
+          <p className="mt-1 text-lg font-medium text-[#1a1a1a]">
+            {collection.floorPrice
+              ? `${collection.floorPrice} ETH`
+              : "—"}
           </p>
         </div>
         <div>
-          <span className="text-gray-500">Best Bid</span>
-          <p className="text-white font-medium">
-            {collection.bestBid ? `${formatETH(collection.bestBid)} ETH` : "—"}
+          <span className="text-[#8c8580] uppercase tracking-wider text-xs">
+            Best Bid
+          </span>
+          <p className="mt-1 text-lg font-medium text-[#1a1a1a]">
+            {collection.bestBid ? `${collection.bestBid} ETH` : "—"}
           </p>
         </div>
         <div>
-          <span className="text-gray-500">Listed</span>
-          <p className="text-white font-medium">{collection.listed}</p>
+          <span className="text-[#8c8580] uppercase tracking-wider text-xs">
+            Listed
+          </span>
+          <p className="mt-1 text-lg font-medium text-[#1a1a1a]">
+            {collection.listed}
+          </p>
         </div>
       </div>
     </div>

@@ -6,14 +6,20 @@ export default function HistoryTab() {
   const { address } = useAccount();
 
   if (!address) {
-    return <p className="text-gray-500">Connect your wallet to see history.</p>;
+    return (
+      <p className="py-16 text-center font-serif text-sm text-[#c4bfb8] italic">
+        Connect your wallet to view your history.
+      </p>
+    );
   }
 
   return (
-    <div className="py-12 text-center text-gray-500">
-      <p>Trade history coming soon.</p>
-      <p className="text-sm mt-2">
-        Past fill events will appear here.
+    <div className="py-20 text-center">
+      <p className="font-serif text-base text-[#c4bfb8] italic">
+        Trade history coming soon.
+      </p>
+      <p className="mt-2 font-serif text-sm text-[#c4bfb8]">
+        Past acquisitions and sales will appear here.
       </p>
     </div>
   );

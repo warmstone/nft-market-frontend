@@ -1,19 +1,131 @@
+@import url("https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,500;0,600;0,700;1,500&family=JetBrains+Mono:wght@0,400;0,500&display=swap");
 @import "tailwindcss";
 
+/* === Gallery Design System ===
+   Aesthetic: Digital Gallery — warm, refined, editorial
+   Type: Playfair Display (headings) + system serif (body) + JetBrains Mono (data)
+   Palette: Cream ground, charcoal ink, amber gold accent
+   Texture: Subtle paper grain overlay
+   === */
+
 @theme inline {
-  --color-brand-50: #f0f0ff;
-  --color-brand-500: #6366f1;
-  --color-brand-600: #4f46e5;
-  --color-brand-700: #4338ca;
+  --font-serif: "Playfair Display", Georgia, "Times New Roman", serif;
+  --font-mono: "JetBrains Mono", "Fira Code", monospace;
+  --font-sans: Georgia, "Times New Roman", serif;
+
+  --color-cream: #faf7f2;
+  --color-cream-100: #f5efe4;
+  --color-cream-200: #ede3d3;
+  --color-ink: #1a1a1a;
+  --color-ink-600: #3d3d3d;
+  --color-ink-500: #6b6560;
+  --color-ink-400: #8c8580;
+  --color-ink-200: #c4bfb8;
+  --color-gold: #b8860b;
+  --color-gold-500: #d4a017;
+  --color-gold-600: #9e7208;
+  --color-paper: #fefdfb;
+  --color-border: #e8e2d8;
+  --color-border-200: #f0ebe3;
+  --color-red-500: #c53030;
+  --color-red-100: #fff5f5;
+  --color-green-500: #2f855a;
 }
 
 html {
-  color-scheme: dark;
+  color-scheme: light;
 }
 
 body {
-  background: #030712;
-  color: #f3f4f6;
+  background: #faf7f2;
+  color: #1a1a1a;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  font-family: Georgia, "Times New Roman", serif;
+}
+
+/* === Paper Grain Texture === */
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  pointer-events: none;
+  opacity: 0.04;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
+  background-repeat: repeat;
+  background-size: 256px 256px;
+}
+
+/* === Scrollbar === */
+::-webkit-scrollbar {
+  width: 6px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: #c4bfb8;
+  border-radius: 3px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #8c8580;
+}
+
+/* === Focus Ring === */
+*:focus-visible {
+  outline: 2px solid #b8860b;
+  outline-offset: 2px;
+  border-radius: 2px;
+}
+
+/* === Selection === */
+::selection {
+  background: rgba(184, 134, 11, 0.15);
+  color: #1a1a1a;
+}
+
+/* === Staggered Reveal Animation === */
+@keyframes fadeUp {
+  from {
+    opacity: 0;
+    transform: translateY(16px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes scaleIn {
+  from {
+    opacity: 0;
+    transform: scale(0.96);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+.animate-fade-up {
+  animation: fadeUp 0.6s ease-out both;
+}
+
+.animate-scale-in {
+  animation: scaleIn 0.5s ease-out both;
+}
+
+/* === Image Hover Lift === */
+.hover-lift {
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+.hover-lift:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.08);
 }
