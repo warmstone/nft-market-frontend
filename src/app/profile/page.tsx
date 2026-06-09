@@ -7,7 +7,7 @@ import OrderTab from "@/components/profile/OrderTab";
 import NFTTab from "@/components/profile/NFTTab";
 import HistoryTab from "@/components/profile/HistoryTab";
 
-const TABS = ["Active Orders", "Collection", "History"] as const;
+const TABS = ["Active Orders", "Market Works", "History"] as const;
 
 export default function ProfilePage() {
   const { isConnected } = useAccount();
@@ -50,7 +50,7 @@ export default function ProfilePage() {
       </div>
 
       {tab === "Active Orders" && <OrderTab />}
-      {tab === "Collection" && <NFTTab />}
+      {tab === "Market Works" && <NFTTab />}
       {tab === "History" && <HistoryTab />}
     </div>
   );

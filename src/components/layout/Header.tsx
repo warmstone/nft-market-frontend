@@ -16,6 +16,12 @@ export default function Header() {
           Gallery
         </Link>
         <SearchBar />
+        <Link
+          href="/admin"
+          className="font-serif text-sm text-[#6b6560] transition hover:text-[#1a1a1a]"
+        >
+          Admin
+        </Link>
         <CreateDropdown />
         <ConnectButton />
       </div>

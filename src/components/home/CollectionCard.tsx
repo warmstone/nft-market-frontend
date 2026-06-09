@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { ipfsURL } from "@/lib/utils";
+import { formatETH, ipfsURL } from "@/lib/utils";
 import type { Collection } from "@/types";
 
 interface Props {
@@ -38,7 +38,7 @@ export default function CollectionCard({ collection }: Props) {
           <p className="mt-3 font-mono text-sm">
             <span className="text-[#8c8580]">Floor </span>
             <span className="text-[#1a1a1a] font-medium">
-              {collection.floorPrice} ETH
+              {formatETH(collection.floorPrice)} ETH
             </span>
           </p>
         )}

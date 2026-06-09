@@ -56,6 +56,25 @@ export interface CollectionDetail extends Collection {
   listed: number;
 }
 
+export interface NFTMetadata {
+  collection: string;
+  tokenId: string;
+  name: string;
+  description: string;
+  imageUrl: string;
+  attributes?: Array<{ trait_type?: string; traitType?: string; value: string | number }>;
+  syncedAt: string;
+}
+
+export interface AssetDetail {
+  collection: Collection | null;
+  metadata: NFTMetadata | null;
+  tokenId: string;
+  listings: Order[];
+  offers: Order[];
+  activity: Order[];
+}
+
 export interface GlobalStats {
   totalOrders: number;
   totalCollections: number;

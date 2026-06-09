@@ -2,12 +2,20 @@
 
 import { useState, Suspense } from "react";
 import { useSearchParams } from "next/navigation";
-import { useAccount, useSignTypedData } from "wagmi";
+import {
+  useAccount,
+  useReadContract,
+  useSignTypedData,
+  useWaitForTransactionReceipt,
+  useWriteContract,
+} from "wagmi";
 import { parseEther } from "viem";
 import { toast } from "sonner";
+import { config } from "@/config";
 import { api } from "@/lib/api";
+import { erc20MarketABI, erc721MarketABI } from "@/lib/contract";
 import { ORDER_TYPES, getEIP712Domain } from "@/lib/eip712";
-import { randomSalt } from "@/lib/utils";
+import { isZeroAddress, randomSalt, shortenAddress } from "@/lib/utils";
 import ModeSelector from "@/components/create/ModeSelector";
 import OrderForm, { type OrderFormValues } from "@/components/create/OrderForm";
 import NFTPicker from "@/components/create/NFTPicker";
@@ -24,7 +32,72 @@ function CreatePageInner() {
     searchParams.get("tokenId") || ""
   );
   const [isPending, setIsPending] = useState(false);
+  const [approvalTx, setApprovalTx] = useState<`0x${string}` | undefined>();
+  const [formValues, setFormValues] = useState<OrderFormValues>({
+    price: "",
+    startPrice: "",
+    startTime: "",
+    endTime: "",
+    taker: "",
+    paymentToken: "",
+  });
   const { signTypedDataAsync } = useSignTypedData();
+  const { writeContractAsync } = useWriteContract();
+  const { isLoading: approvalPending } = useWaitForTransactionReceipt({
+    hash: approvalTx,
+  });
+  const account = address as `0x${string}` | undefined;
+  const tokenIdBigInt = /^\d+$/.test(tokenId) ? BigInt(tokenId) : BigInt(0);
+  const priceWei = formValues.price && /^\d*\.?\d+$/.test(formValues.price)
+    ? parseEther(formValues.price)
+    : BigInt(0);
+  const orderPaymentToken =
+    formValues.paymentToken ||
+    (mode === "buy"
+      ? config.wethAddress
+      : "0x0000000000000000000000000000000000000000");
+  const canReadNFT = !!collection && !!tokenId && /^\d+$/.test(tokenId) && !!account;
+  const { data: owner } = useReadContract({
+    address: collection as `0x${string}`,
+    abi: erc721MarketABI,
+    functionName: "ownerOf",
+    args: [tokenIdBigInt],
+    query: { enabled: canReadNFT },
+  });
+  const { data: approved } = useReadContract({
+    address: collection as `0x${string}`,
+    abi: erc721MarketABI,
+    functionName: "getApproved",
+    args: [tokenIdBigInt],
+    query: { enabled: canReadNFT && mode === "sell" },
+  });
+  const { data: approvedForAll } = useReadContract({
+    address: collection as `0x${string}`,
+    abi: erc721MarketABI,
+    functionName: "isApprovedForAll",
+    args: [account ?? "0x0000000000000000000000000000000000000000", config.exchangeAddress],
+    query: { enabled: canReadNFT && mode === "sell" },
+  });
+  const { data: tokenAllowance } = useReadContract({
+    address: orderPaymentToken as `0x${string}`,
+    abi: erc20MarketABI,
+    functionName: "allowance",
+    args: [account ?? "0x0000000000000000000000000000000000000000", config.exchangeAddress],
+    query: { enabled: mode === "buy" && !!account && !isZeroAddress(orderPaymentToken) },
+  });
+  const needsNFTApproval =
+    mode === "sell" &&
+    !!account &&
+    !!collection &&
+    approved !== undefined &&
+    approvedForAll !== undefined &&
+    approved.toLowerCase() !== config.exchangeAddress.toLowerCase() &&
+    approvedForAll !== true;
+  const needsTokenApproval =
+    mode === "buy" &&
+    priceWei > BigInt(0) &&
+    tokenAllowance !== undefined &&
+    tokenAllowance < priceWei;
 
   async function handleSubmit(values: OrderFormValues) {
     if (!address) {
@@ -33,6 +106,10 @@ function CreatePageInner() {
     }
     if (!collection || !tokenId) {
       toast.error("Enter collection address and token ID");
+      return;
+    }
+    if (!/^\d+$/.test(tokenId)) {
+      toast.error("Token ID must be a decimal integer");
       return;
     }
 
@@ -48,9 +125,34 @@ function CreatePageInner() {
         : 0;
       const paymentToken =
         values.paymentToken ||
-        "0x0000000000000000000000000000000000000000";
+        (mode === "buy"
+          ? config.wethAddress
+          : "0x0000000000000000000000000000000000000000");
       const taker =
         values.taker || "0x0000000000000000000000000000000000000000";
+
+      if (mode === "sell") {
+        if (owner && owner.toLowerCase() !== address.toLowerCase()) {
+          toast.error(`This wallet does not own token #${tokenId}`);
+          return;
+        }
+        const exchangeApproved =
+          approved?.toLowerCase() === config.exchangeAddress.toLowerCase() ||
+          approvedForAll === true;
+        if (approved !== undefined && approvedForAll !== undefined && !exchangeApproved) {
+          toast.error("Approve the exchange for this NFT before listing");
+          return;
+        }
+      }
+
+      if (mode === "buy" && isZeroAddress(paymentToken)) {
+        toast.error("Configure WETH or enter a payment token before making an offer");
+        return;
+      }
+      if (mode === "buy" && tokenAllowance !== undefined && tokenAllowance < priceWei) {
+        toast.error("Approve the payment token before submitting this offer");
+        return;
+      }
 
       const signature = await signTypedDataAsync({
         domain: getEIP712Domain(),
@@ -109,6 +211,38 @@ function CreatePageInner() {
     }
   }
 
+  async function handleApproveNFT() {
+    if (!collection) return;
+    try {
+      const hash = await writeContractAsync({
+        address: collection as `0x${string}`,
+        abi: erc721MarketABI,
+        functionName: "setApprovalForAll",
+        args: [config.exchangeAddress, true],
+      });
+      setApprovalTx(hash);
+      toast("Approval submitted");
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : "Approval rejected");
+    }
+  }
+
+  async function handleApproveToken() {
+    if (isZeroAddress(orderPaymentToken) || priceWei <= BigInt(0)) return;
+    try {
+      const hash = await writeContractAsync({
+        address: orderPaymentToken as `0x${string}`,
+        abi: erc20MarketABI,
+        functionName: "approve",
+        args: [config.exchangeAddress, priceWei],
+      });
+      setApprovalTx(hash);
+      toast("Approval submitted");
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : "Approval rejected");
+    }
+  }
+
   return (
     <div className="mx-auto max-w-lg">
       <h1 className="mb-8 font-serif text-3xl font-semibold italic text-[#1a1a1a]">
@@ -123,10 +257,33 @@ function CreatePageInner() {
         onCollectionChange={setCollection}
         onTokenIdChange={setTokenId}
       />
+      {collection && tokenId && owner && (
+        <div className="mt-4 rounded-md border border-[#e8e2d8] bg-white px-4 py-3 font-serif text-xs text-[#8c8580]">
+          Owner {shortenAddress(owner)}
+        </div>
+      )}
+      {(needsNFTApproval || needsTokenApproval) && (
+        <div className="mt-4 rounded-md border border-[#e8e2d8] bg-white p-4">
+          <p className="font-serif text-sm text-[#6b6560]">
+            {needsNFTApproval
+              ? "Approve the exchange before listing this work."
+              : "Approve the exchange to use your payment token for this offer."}
+          </p>
+          <button
+            type="button"
+            onClick={needsNFTApproval ? handleApproveNFT : handleApproveToken}
+            disabled={approvalPending}
+            className="mt-3 rounded-md bg-[#1a1a1a] px-4 py-2 font-serif text-sm text-[#faf7f2] transition hover:bg-[#3d3d3d] disabled:opacity-40"
+          >
+            {approvalPending ? "Approving" : needsNFTApproval ? "Approve Collection" : "Approve Token"}
+          </button>
+        </div>
+      )}
       <div className="mt-8">
         <OrderForm
           mode={mode}
           onSubmit={handleSubmit}
+          onValuesChange={setFormValues}
           isPending={isPending}
         />
       </div>

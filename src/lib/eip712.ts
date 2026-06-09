@@ -9,7 +9,7 @@ export const ORDER_TYPES = {
     { name: "assetType", type: "uint8" },
     { name: "collection", type: "address" },
     { name: "tokenId", type: "uint256" },
-    { name: "amount", type: "uint128" },
+    { name: "amount", type: "uint256" },
     { name: "paymentToken", type: "address" },
     { name: "price", type: "uint128" },
     { name: "startPrice", type: "uint128" },

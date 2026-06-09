@@ -1,17 +1,18 @@
 "use client";
 
+import { useEffect, useState } from "react";
+import Link from "next/link";
 import {
   useAccount,
-  useWriteContract,
   useWaitForTransactionReceipt,
+  useWriteContract,
 } from "wagmi";
 import { toast } from "sonner";
-import { useUserOrders } from "@/hooks/useOrders";
-import { shortenAddress, relativeTime } from "@/lib/utils";
-import { exchangeABI } from "@/lib/contract";
 import { config } from "@/config";
+import { useUserOrders } from "@/hooks/useOrders";
+import { exchangeABI } from "@/lib/contract";
+import { formatETH, relativeTime, shortenAddress } from "@/lib/utils";
 import type { Order } from "@/types";
-import { useState, useEffect } from "react";
 
 function CancelButton({ order }: { order: Order }) {
   const [txHash, setTxHash] = useState<`0x${string}` | undefined>();
@@ -41,9 +42,7 @@ function CancelButton({ order }: { order: Order }) {
         args: [BigInt(order.salt)],
       });
       setTxHash(hash);
-      toast("Cancelling…", {
-        style: { background: "#fefdfb", color: "#1a1a1a", border: "1px solid #b8860b" },
-      });
+      toast("Cancelling order");
     } catch (e) {
       toast.error(e instanceof Error ? e.message : "Cancel rejected");
     }
@@ -55,7 +54,7 @@ function CancelButton({ order }: { order: Order }) {
       disabled={!!txHash}
       className="rounded-md border border-[#e8e2d8] px-4 py-1.5 font-serif text-xs text-[#6b6560] transition hover:border-[#c53030] hover:text-[#c53030] disabled:opacity-40"
     >
-      {txHash ? "Pending…" : "Cancel"}
+      {txHash ? "Pending" : "Cancel"}
     </button>
   );
 }
@@ -104,19 +103,21 @@ export default function OrderTab() {
           <div>
             <div className="flex items-center gap-3">
               <span className="font-mono text-xs uppercase tracking-wider text-[#8c8580]">
-                {order.side === 0 ? "Sell" : "Buy"}
+                {order.side === 0 ? "Listing" : "Offer"}
               </span>
-              <span className="font-mono text-sm text-[#1a1a1a]">
-                #
-                {order.tokenId.length > 12
-                  ? shortenAddress(order.tokenId)
-                  : order.tokenId}
+              <Link
+                href={`/asset/${order.collection}/${order.tokenId}`}
+                className="font-mono text-sm text-[#1a1a1a] transition hover:text-[#b8860b]"
+              >
+                #{order.tokenId.length > 12 ? shortenAddress(order.tokenId) : order.tokenId}
+              </Link>
+              <span className="font-mono text-xs text-[#c4bfb8]">
+                {shortenAddress(order.collection)}
               </span>
             </div>
             <p className="mt-1 font-serif text-sm text-[#6b6560]">
-              {order.price} ETH
-              {order.endTime > 0 &&
-                ` · ${relativeTime(order.endTime)}`}
+              {formatETH(order.price)} {order.side === 0 ? "ETH" : "WETH"}
+              {order.endTime > 0 ? ` expires ${relativeTime(order.endTime)}` : ""}
             </p>
           </div>
           <CancelButton order={order} />

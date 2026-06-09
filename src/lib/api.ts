@@ -2,6 +2,7 @@ import { config } from "@/config";
 import type {
   Collection,
   CollectionDetail,
+  AssetDetail,
   GlobalStats,
   Order,
   PaginatedResponse,
@@ -39,11 +40,34 @@ async function fetchAPI<T>(
 
 export const api = {
   // === Collections ===
-  getCollections: () =>
-    fetchAPI<Collection[]>("/api/v1/collections"),
+  getCollections: async () => {
+    const res = await fetchAPI<{
+      collections: Collection[];
+      total: number;
+      page: number;
+      pageSize: number;
+    }>("/api/v1/collections");
+    return res.collections;
+  },
 
-  getCollection: (address: string) =>
-    fetchAPI<CollectionDetail>(`/api/v1/collections/${address}`),
+  getCollection: async (address: string) => {
+    const res = await fetchAPI<{
+      collection: Collection;
+      floorPrice: string | null;
+      bestBid: string | null;
+      listed: number;
+    }>(`/api/v1/collections/${address}`);
+    return {
+      ...res.collection,
+      floorPrice: res.floorPrice || "",
+      bestBid: res.bestBid || "",
+      listed: res.listed,
+    } satisfies CollectionDetail;
+  },
+
+  // === Assets ===
+  getAsset: (collection: string, tokenId: string) =>
+    fetchAPI<AssetDetail>(`/api/v1/assets/${collection}/${tokenId}`),
 
   // === Orders ===
   getOrders: (params: Record<string, string | number | undefined>) => {

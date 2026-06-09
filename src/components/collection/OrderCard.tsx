@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { useAccount } from "wagmi";
-import { shortenAddress, relativeTime, isZeroAddress } from "@/lib/utils";
+import { formatETH, shortenAddress, relativeTime, isZeroAddress } from "@/lib/utils";
 import type { Order } from "@/types";
 
 interface Props {
@@ -37,7 +37,7 @@ export default function OrderCard({ order }: Props) {
 
       <div className="flex items-center gap-6">
         <p className="font-mono text-lg font-medium text-[#1a1a1a]">
-          {order.price} ETH
+          {formatETH(order.price)} {order.side === 0 ? "ETH" : "WETH"}
         </p>
         <div className="flex gap-2">
           <Link

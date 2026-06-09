@@ -5,7 +5,7 @@ import { Toaster } from "sonner";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "Gallery — NFT Market",
+  title: "Gallery - NFT Market",
   description: "A curated marketplace for digital art and collectibles",
 };
 

@@ -16,3 +16,11 @@ export function useCollection(address: string | undefined) {
     { revalidateOnFocus: false, dedupingInterval: 15_000 }
   );
 }
+
+export function useAsset(collection: string | undefined, tokenId: string | undefined) {
+  return useSWR(
+    collection && tokenId ? `asset:${collection}:${tokenId}` : null,
+    () => api.getAsset(collection!, tokenId!),
+    { revalidateOnFocus: false, dedupingInterval: 10_000 }
+  );
+}

@@ -19,11 +19,12 @@ export function shortenAddress(addr: string): string {
   return `${addr.slice(0, 6)}...${addr.slice(-4)}`;
 }
 
-/** Generate a random salt as a hex string. */
-export function randomSalt(): `0x${string}` {
+/** Generate a random uint256 salt as a decimal string. */
+export function randomSalt(): string {
   const bytes = new Uint8Array(32);
   crypto.getRandomValues(bytes);
-  return `0x${Array.from(bytes, (b) => b.toString(16).padStart(2, "0")).join("")}`;
+  const hex = Array.from(bytes, (b) => b.toString(16).padStart(2, "0")).join("");
+  return BigInt(`0x${hex}`).toString();
 }
 
 /** Format a Unix timestamp to relative time. */

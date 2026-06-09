@@ -18,16 +18,18 @@ export default function NFTViewer({
   description,
   attributes,
 }: Props) {
+  const placeholder =
+    "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' width='800' height='800'><rect fill='%23ede3d3' width='800' height='800'/><circle cx='400' cy='360' r='120' fill='%23d8c9b1'/><rect x='220' y='520' width='360' height='36' rx='18' fill='%23d8c9b1'/></svg>";
+
   return (
     <div>
-      <div className="overflow-hidden rounded-lg border border-[#e8e2d8] bg-[#f5efe4]">
+      <div className="aspect-square overflow-hidden rounded-lg border border-[#e8e2d8] bg-[#f5efe4]">
         <img
-          src={ipfsURL(imageUrl)}
+          src={imageUrl ? ipfsURL(imageUrl) : placeholder}
           alt={name}
           className="h-full w-full object-contain"
           onError={(e) => {
-            (e.target as HTMLImageElement).src =
-              "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' width='200' height='200'><rect fill='%23ede3d3' width='200' height='200'/></svg>";
+            (e.target as HTMLImageElement).src = placeholder;
           }}
         />
       </div>

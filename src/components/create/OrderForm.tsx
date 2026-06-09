@@ -1,5 +1,6 @@
 "use client";
 
+import { useEffect } from "react";
 import { useForm } from "react-hook-form";
 
 export interface OrderFormValues {
@@ -14,6 +15,7 @@ export interface OrderFormValues {
 interface Props {
   mode: "sell" | "buy";
   onSubmit: (values: OrderFormValues) => void;
+  onValuesChange?: (values: OrderFormValues) => void;
   isPending: boolean;
 }
 
@@ -23,10 +25,11 @@ const labelClass =
   "mb-1.5 block font-mono text-xs uppercase tracking-wider text-[#8c8580]";
 const errorClass = "mt-1 font-serif text-xs text-[#c53030]";
 
-export default function OrderForm({ mode, onSubmit, isPending }: Props) {
+export default function OrderForm({ mode, onSubmit, onValuesChange, isPending }: Props) {
   const {
     register,
     handleSubmit,
+    watch,
     formState: { errors },
   } = useForm<OrderFormValues>({
     defaultValues: {
@@ -38,6 +41,19 @@ export default function OrderForm({ mode, onSubmit, isPending }: Props) {
       paymentToken: "",
     },
   });
+  useEffect(() => {
+    const subscription = watch((value) => {
+      onValuesChange?.({
+        price: value.price || "",
+        startPrice: value.startPrice || "",
+        startTime: value.startTime || "",
+        endTime: value.endTime || "",
+        taker: value.taker || "",
+        paymentToken: value.paymentToken || "",
+      });
+    });
+    return () => subscription.unsubscribe();
+  }, [onValuesChange, watch]);
 
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
@@ -58,9 +74,7 @@ export default function OrderForm({ mode, onSubmit, isPending }: Props) {
           })}
           className={inputClass}
         />
-        {errors.price && (
-          <p className={errorClass}>{errors.price.message}</p>
-        )}
+        {errors.price && <p className={errorClass}>{errors.price.message}</p>}
       </div>
 
       <div>
@@ -77,11 +91,7 @@ export default function OrderForm({ mode, onSubmit, isPending }: Props) {
 
       <div>
         <label className={labelClass}>End Time (empty = never)</label>
-        <input
-          type="datetime-local"
-          {...register("endTime")}
-          className={inputClass}
-        />
+        <input type="datetime-local" {...register("endTime")} className={inputClass} />
       </div>
 
       <div>
@@ -90,8 +100,7 @@ export default function OrderForm({ mode, onSubmit, isPending }: Props) {
           type="text"
           placeholder="0x... or empty"
           {...register("taker", {
-            validate: (v) =>
-              !v || v.startsWith("0x") || "Must be a hex address",
+            validate: (v) => !v || v.startsWith("0x") || "Must be a hex address",
           })}
           className={inputClass}
         />
@@ -99,14 +108,13 @@ export default function OrderForm({ mode, onSubmit, isPending }: Props) {
 
       <div>
         <label className={labelClass}>
-          Payment Token (empty = {mode === "sell" ? "ETH" : "WETH"})
+          Payment Token (empty = {mode === "sell" ? "ETH" : "configured WETH"})
         </label>
         <input
           type="text"
           placeholder="0x... or empty"
           {...register("paymentToken", {
-            validate: (v) =>
-              !v || v.startsWith("0x") || "Must be a hex address",
+            validate: (v) => !v || v.startsWith("0x") || "Must be a hex address",
           })}
           className={inputClass}
         />
@@ -117,11 +125,7 @@ export default function OrderForm({ mode, onSubmit, isPending }: Props) {
         disabled={isPending}
         className="w-full rounded-md bg-[#1a1a1a] px-4 py-3 font-serif text-base font-medium text-[#faf7f2] transition hover:bg-[#3d3d3d] disabled:opacity-40"
       >
-        {isPending
-          ? "Signing…"
-          : mode === "sell"
-          ? "Sign & List"
-          : "Sign & Offer"}
+        {isPending ? "Signing" : mode === "sell" ? "Sign & List" : "Sign & Offer"}
       </button>
     </form>
   );
