@@ -48,7 +48,7 @@ const ORDER_TYPES = {
     { name: "assetType", type: "uint8" },
     { name: "collection", type: "address" },
     { name: "tokenId", type: "uint256" },
-    { name: "amount", type: "uint128" },
+    { name: "amount", type: "uint256" },
     { name: "paymentToken", type: "address" },
     { name: "price", type: "uint128" },
     { name: "startPrice", type: "uint128" },
@@ -81,11 +81,15 @@ async function fetchAPI<T>(path: string, options?: RequestInit, token?: string):
   const headers: Record<string, string> = { "Content-Type": "application/json" };
   if (token) headers["Authorization"] = `Bearer ${token}`;
   const res = await fetch(`${API_BASE}${path}`, { headers, ...options });
-  const body = await res.json();
+  const text = await res.text();
   if (!res.ok) {
+    let body: any = {};
+    try { body = JSON.parse(text); } catch {}
     throw new Error(`[${res.status}] ${body.error || "UNKNOWN"}: ${body.message || res.statusText}`);
   }
-  return body as T;
+  // Handle 201/204 with empty body
+  if (!text) return {} as T;
+  return JSON.parse(text) as T;
 }
 
 // ============================================================
@@ -168,7 +172,7 @@ async function main() {
     startPrice: priceWei.toString(),
     startTime: now,
     endTime: now + 86400 * 7,
-    salt: salt,
+    salt: BigInt(salt).toString(),
     counter: "0",
     extra: ZERO_BYTES32,
     signature,
